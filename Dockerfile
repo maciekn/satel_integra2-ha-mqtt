@@ -2,6 +2,8 @@ FROM python:3-alpine
 
 ENV ETHM_HOST=localhost
 ENV ETHM_PORT=7094
+ENV MQTT_HOST=localhost
+ENV MONITORING="{\"outs\":[41]}"
 
 WORKDIR /app
 
