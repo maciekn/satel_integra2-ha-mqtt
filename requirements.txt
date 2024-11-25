@@ -1,0 +1,2 @@
+cryptography
+ha-mqtt-discoverable
