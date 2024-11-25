@@ -194,10 +194,9 @@ class AsyncSatel:
 
         return True
 
-    async def start_monitoring(self):
+    async def start_monitoring(self, monitoring_query):
         """Start monitoring for interesting events."""
-        data = generate_query(
-            b'\x7F\x01\xDC\x99\x80\x00\x04\x00\x00\x00\x00\x00\x00')
+        data = generate_query(monitoring_query)
 
         await self._send_data(data)
         resp = await self._read_data()
@@ -448,7 +447,8 @@ class AsyncSatel:
 
     async def monitor_status(self, alarm_status_callback=None,
                              zone_changed_callback=None,
-                             output_changed_callback=None):
+                             output_changed_callback=None,
+                             monitoring_query=b'\x7F\x01\xDC\x99\x80\x00\x04\x00\x00\x00\x00\x00\x00'):
         """Start monitoring of the alarm status.
 
         Send command to satel integra to start sending updates. Read in a
@@ -469,7 +469,7 @@ class AsyncSatel:
                     _LOGGER.warning("Not connected, sleeping for 10s... ")
                     await asyncio.sleep(self._reconnection_timeout)
                     continue
-            await self.start_monitoring()
+            await self.start_monitoring(monitoring_query)
             if not self.connected:
                 _LOGGER.warning("Start monitoring failed, sleeping for 10s...")
                 await asyncio.sleep(self._reconnection_timeout)
