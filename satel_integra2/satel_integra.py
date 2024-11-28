@@ -413,15 +413,15 @@ class AsyncSatel:
     async def keep_alive(self):
         """A workaround for Satel Integra disconnecting after 25s.
 
-        Every interval it sends some random question to the device, ignoring
-        answer - just to keep connection alive.
+        Every interval it sends query to read zones alarm state
         """
         while True:
             await asyncio.sleep(self._keep_alive_timeout)
             if self.closed:
                 return
-            # Command to read status of the alarm
-            data = generate_query(b'\xEE\x01\x01')
+            # Command to read status of the zones alarm state
+            _LOGGER.debug("-- Keepalive query --")
+            data = generate_query(b'\x0A')
             await self._send_data(data)
 
     async def _update_status(self):

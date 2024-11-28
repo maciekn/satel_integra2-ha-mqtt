@@ -10,7 +10,7 @@ from ha_mqtt_discoverable.sensors import BinarySensor, BinarySensorInfo
 from satel_integra2.satel_integra import AsyncSatel, AlarmState
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 loop = asyncio.get_event_loop()
 
