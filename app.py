@@ -7,10 +7,10 @@ import json
 from ha_mqtt_discoverable import Settings, DeviceInfo
 from ha_mqtt_discoverable.sensors import BinarySensor, BinarySensorInfo
 
-from satel_integra2.satel_integra import AsyncSatel
+from satel_integra2.satel_integra import AsyncSatel, AlarmState
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 loop = asyncio.get_event_loop()
 
@@ -34,9 +34,25 @@ for sensorId in configJson["outs"]:
     outsensors[sensorId] = BinarySensor(settings)
 
 
+zonesensors = {}
+for zoneID in configJson["zones"]:
+    sensor_info = BinarySensorInfo(
+        name="Satel Zone "+str(zoneID), device_class="safety",
+        unique_id="satel.integra.zone_"+str(zoneID),
+        device=device_info
+    )
+
+    settings = Settings(mqtt=mqtt_settings, entity=sensor_info)
+    zonesensors[zoneID] = BinarySensor(settings)
+
 def outputChanged(status):
     for sensor in status['outputs']:
         outsensors[sensor].update_state(status['outputs'][sensor] == 1)
+
+
+def alarmStatus(states):
+    for sensor in zonesensors:
+        zonesensors[sensor].update_state(sensor not in states[AlarmState.ARMED_MODE0])
 
 
 stl = AsyncSatel(os.environ["ETHM_HOST"],
@@ -50,7 +66,8 @@ stl = AsyncSatel(os.environ["ETHM_HOST"],
 loop.run_until_complete(stl.connect())
 loop.create_task(stl.keep_alive())
 loop.create_task(stl.monitor_status(output_changed_callback=outputChanged,
-                 monitoring_query=b'\x7F\x00\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
+                alarm_status_callback=alarmStatus,
+                 monitoring_query=b'\x7F\x00\x04\x80\x00\x00\x00\x00\x00\x00\x00\x00\x00'))
 
 loop.run_forever()
 loop.close()

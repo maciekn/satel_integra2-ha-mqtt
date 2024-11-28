@@ -364,7 +364,7 @@ class AsyncSatel:
         self.partition_states[mode] = partitions
 
         if self._alarm_status_callback:
-            self._alarm_status_callback()
+            self._alarm_status_callback(self.partition_states)
 
     async def _read_data(self):
         if not self._reader:
@@ -383,7 +383,7 @@ class AsyncSatel:
             self._reader = None
 
             if self._alarm_status_callback:
-                self._alarm_status_callback()
+                self._alarm_status_callback(self.partition_states)
 
     async def _read_plain(self):
         data = await self._reader.readuntil(END_SEQUENCE)
@@ -434,7 +434,7 @@ class AsyncSatel:
             self._writer = None
             self._reader = None
             if self._alarm_status_callback:
-                self._alarm_status_callback()
+                self._alarm_status_callback(self.partition_states)
             return
 
         msg_id = resp[0:1]
